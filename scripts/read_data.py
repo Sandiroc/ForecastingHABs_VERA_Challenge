@@ -7,4 +7,4 @@ data = pd.read_csv(url)
 
 date = datetime.now()
 datestring = date.strftime("%Y-%m-%d")
-data.to_csv("./VERA_data_" + datestring + ".csv", index=False)
+data.to_csv("./data/VERA_data_" + datestring + ".csv", index=False)
