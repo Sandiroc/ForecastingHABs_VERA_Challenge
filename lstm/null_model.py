@@ -5,6 +5,7 @@ import keras
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.models import Sequential, load_model
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 import format_data
 
 def get_data(reservoir: str):
@@ -88,6 +89,20 @@ y_pred = model.predict(X_test)
 
 # Inverse transform the predictions
 y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
+y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
 
 # Print the predicted chlorophyll-a value for tomorrow
 print("Predicted chlorophyll-a value for tomorrow:", y_pred_inverse[-1])
+
+# plot
+plt.figure(figsize=(10, 6))
+plt.plot(y_test_inverse, label='Actual')
+plt.plot(y_pred_inverse, label='Predicted')
+plt.xlabel('Time')
+plt.ylabel('Chlorophyll-a Value')
+plt.title('Actual vs Predicted Chlorophyll-a Values')
+plt.legend()
+plt.show()
+
+np.savetxt("./something.csv", y_pred_inverse)
+np.savetxt("./something1.csv", y_test_inverse)
