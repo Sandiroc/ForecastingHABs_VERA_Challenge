@@ -61,7 +61,7 @@ def define_model(seq_length):
 # ------------------------------------------------------------------------------------------------
 
 # get fcre data
-data = get_data(reservoir="fcre")
+data = get_data(reservoir="bvre")
 
 # normalize chl-a observations
 data, scaler = normalize_and_format(data)
@@ -110,4 +110,4 @@ plt.xlabel('Time')
 plt.ylabel('Chlorophyll-a Value')
 plt.title('Actual vs Predicted Chlorophyll-a Values')
 plt.legend()
-plt.savefig("preds1.png")
+plt.savefig("./preds1.png")
