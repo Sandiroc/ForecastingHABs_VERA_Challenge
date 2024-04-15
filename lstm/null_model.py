@@ -5,6 +5,7 @@ import keras
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.models import Sequential, load_model
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import format_data
 
@@ -59,14 +60,14 @@ def define_model(seq_length):
 
 # ------------------------------------------------------------------------------------------------
 
-# get fcre dat
+# get fcre data
 data = get_data(reservoir="fcre")
 
 # normalize chl-a observations
 data, scaler = normalize_and_format(data)
 
 # Choose sequence length
-sequence_length = 10
+sequence_length = 7
 
 # Create sequences
 X, y = create_sequences(data['Chla_ugl_mean'], sequence_length)
@@ -82,7 +83,7 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # define and train
 model = define_model(sequence_length)
-model.fit(X_train, y_train, epochs=100, batch_size=64, verbose=1)
+model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
 
 # Make predictions
 y_pred = model.predict(X_test)
@@ -94,6 +95,13 @@ y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
 # Print the predicted chlorophyll-a value for tomorrow
 print("Predicted chlorophyll-a value for tomorrow:", y_pred_inverse[-1])
 
+# save y_test and y_hat
+#np.savetxt("./something.txt", y_pred_inverse)
+#np.savetxt("./something1.txt", y_test_inverse)
+
+# rmse
+print("Model RMSE: ", np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
+
 # plot
 plt.figure(figsize=(10, 6))
 plt.plot(y_test_inverse, label='Actual')
@@ -102,7 +110,4 @@ plt.xlabel('Time')
 plt.ylabel('Chlorophyll-a Value')
 plt.title('Actual vs Predicted Chlorophyll-a Values')
 plt.legend()
-plt.show()
-
-np.savetxt("./something.csv", y_pred_inverse)
-np.savetxt("./something1.csv", y_test_inverse)
+plt.savefig("preds1.png")
