@@ -37,8 +37,13 @@ def format(model_type, reservoir):
                 split_index = ind
                 break
 
+        # split into different datasets
         bvre_chla_data = algal_data[split_index:]
         fcre_chla_data = algal_data[:split_index]
+
+        # reindex dataframes
+        bvre_chla_data.reset_index(inplace=True, drop=True)
+        fcre_chla_data.reset_index(inplace=True, drop=True)
         
         # send to CSVs
         algal_data.to_csv(path_or_buf="./data/formatted_" + datestring + ".csv", index=False)
