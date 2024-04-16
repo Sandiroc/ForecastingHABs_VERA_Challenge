@@ -58,10 +58,67 @@ def define_model(seq_length):
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
 
+
+def add_gaussian_noise(X, noise):
+    """Add noise to a vector"""
+    mean = 0
+    std_dev = noise * (np.max(X) - np.min(X))
+    gaussian_noise = np.random.normal(mean, std_dev, X.shape)
+
+    return X + gaussian_noise
+
+
+def noise_validation(data: pd.DataFrame, noises=(0.01, 0.05, 0.1, 0.15)):
+    """Test robustness of model with different levels of noise. 
+    Noises is a list of noises, data is a Pandas dataframe with time series and observation data, 
+    model is the sequential lstm model. Returns list of rmse"""
+
+    if (len(noises) != 4):
+        raise Exception("Wrong number of noise inputs")
+
+    val_data = data.copy(deep=True)
+
+    # Choose sequence length
+    sequence_length = 7
+
+    rmse = list()
+
+    for i in range(len(noises)):
+        val_data['noise'] = add_gaussian_noise(val_data["Chla_ugl_mean"], noises[i])
+
+        # Create sequences
+        X, y = create_sequences(val_data['noise'], sequence_length)
+
+        # Split the data into training and testing sets
+        train_size = int(len(X) * 0.7)
+        X_train, X_test = X[:train_size], X[train_size:]
+        y_train, y_test = y[:train_size], y[train_size:]
+
+        # Reshape the input data for LSTM
+        X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+
+        # define and train
+        model = define_model(sequence_length)
+        model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Inverse transform the predictions
+        y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
+        y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
+
+        rmse.append(np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
+        
+
+    return rmse, noises
+
+
 # ------------------------------------------------------------------------------------------------
 
 # get fcre data
-data = get_data(reservoir="bvre")
+data = get_data(reservoir="fcre")
 
 # normalize chl-a observations
 data, scaler = normalize_and_format(data)
@@ -107,7 +164,18 @@ plt.figure(figsize=(10, 6))
 plt.plot(y_test_inverse, label='Actual')
 plt.plot(y_pred_inverse, label='Predicted')
 plt.xlabel('Time')
-plt.ylabel('Chlorophyll-a Value')
+plt.ylabel('Mean Chlorophyll-a content (ug/L)')
 plt.title('Actual vs Predicted Chlorophyll-a Values')
 plt.legend()
-plt.savefig("./preds1.png")
+plt.savefig("./plots/preds.png")
+
+# test noise
+noise_rmse, noises = noise_validation(data)
+
+# plot noise
+plt.figure(figsize=(10,6))
+plt.plot(noises, noise_rmse)
+plt.xlabel('Noise Level')
+plt.ylabel('RMSE')
+plt.title("RMSE vs. Noise Level")
+plt.savefig("./plots/rmse.png")
