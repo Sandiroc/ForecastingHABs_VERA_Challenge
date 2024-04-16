@@ -1,7 +1,5 @@
 import numpy as np
-import sys
 import pandas as pd
-import keras
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.models import Sequential, load_model
 from sklearn.preprocessing import MinMaxScaler
@@ -68,50 +66,30 @@ def add_gaussian_noise(X, noise):
     return X + gaussian_noise
 
 
-def noise_validation(data: pd.DataFrame, noises=(0.01, 0.05, 0.1, 0.15)):
-    """Test robustness of model with different levels of noise. 
-    Noises is a list of noises, data is a Pandas dataframe with time series and observation data, 
-    model is the sequential lstm model. Returns list of rmse"""
+def noise_val(X_test, y_test, model: Sequential, noises=(0.01, 0.05, 0.1, 0.15, 0.2)):
+    """Test robustness of model with different levels of noise"""
 
-    if (len(noises) != 4):
-        raise Exception("Wrong number of noise inputs")
-
-    val_data = data.copy(deep=True)
-
-    # Choose sequence length
-    sequence_length = 7
 
     rmse = list()
 
+    # iterate over each noise
     for i in range(len(noises)):
-        val_data['noise'] = add_gaussian_noise(val_data["Chla_ugl_mean"], noises[i])
 
-        # Create sequences
-        X, y = create_sequences(val_data['noise'], sequence_length)
+        # add noise to test data
+        X_test = add_gaussian_noise(X_test, noises[i])
+        y_test = add_gaussian_noise(y_test, noises[i])
 
-        # Split the data into training and testing sets
-        train_size = int(len(X) * 0.7)
-        X_train, X_test = X[:train_size], X[train_size:]
-        y_train, y_test = y[:train_size], y[train_size:]
-
-        # Reshape the input data for LSTM
-        X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-
-        # define and train
-        model = define_model(sequence_length)
-        model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
-
-        # Make predictions
+        # predict
         y_pred = model.predict(X_test)
 
         # Inverse transform the predictions
         y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
         y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
 
+        # calculate rmse
         rmse.append(np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
-        
 
+    
     return rmse, noises
 
 
@@ -153,8 +131,8 @@ y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
 print("Predicted chlorophyll-a value for tomorrow:", y_pred_inverse[-1])
 
 # save y_test and y_hat
-#np.savetxt("./something.txt", y_pred_inverse)
-#np.savetxt("./something1.txt", y_test_inverse)
+np.savetxt("./predicted.txt", y_pred_inverse)
+np.savetxt("./actual.txt", y_test_inverse)
 
 # rmse
 print("Model RMSE: ", np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
@@ -170,7 +148,7 @@ plt.legend()
 plt.savefig("./plots/preds.png")
 
 # test noise
-noise_rmse, noises = noise_validation(data)
+noise_rmse, noises = noise_val(X_test, y_test, model)
 
 # plot noise
 plt.figure(figsize=(10,6))
