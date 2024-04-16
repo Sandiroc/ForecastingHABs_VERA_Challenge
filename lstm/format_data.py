@@ -1,4 +1,6 @@
 from datetime import datetime
+from datetime import timedelta
+import os
 import pandas as pd
 import read_data
 
@@ -50,6 +52,23 @@ def format(model_type, reservoir):
         bvre_chla_data.to_csv(path_or_buf="./data/bvre_data" + datestring + ".csv", index=False)
         fcre_chla_data.to_csv(path_or_buf="./data/fcre_data" + datestring + ".csv", index=False)
 
+        # remove previous data
+        try:
+            today = datetime.today()
+            yesterday = today - timedelta(days = 1)
+
+            root = "./data/"
+            rm_string = yesterday.strftime("%Y-%m-%d")
+            
+            os.remove(root + "bvre_data" + rm_string + ".csv")
+            os.remove(root + "fcre_data" + rm_string + ".csv")
+            os.remove(root + "formatted_" + rm_string + ".csv")
+
+            os.remove(root + rm_string + ".csv")
+        except:
+            print("Previous data not initialized")
+
+        
         if (reservoir=="fcre"):
             return fcre_chla_data
         

@@ -1,4 +1,6 @@
 from datetime import datetime
+from datetime import timedelta
+import os
 import pandas as pd
 
 def read():
@@ -11,6 +13,20 @@ def read():
     date = datetime.now()
     datestring = date.strftime("%Y-%m-%d")
     data.to_csv("./raw_data/VERA_data_" + datestring + ".csv", index=False)
+
+    try:
+        # remove yesterday's raw data
+        today = datetime.today()
+        yesterday = today - timedelta(days = 1)
+
+        root = "./raw_data/VERA_data_"
+        rm_string = yesterday.strftime("%Y-%m-%d")
+        
+        os.remove(root + rm_string + ".csv")
+
+    except: 
+        print("Yesterday data not initialized")
+
 
 
 
