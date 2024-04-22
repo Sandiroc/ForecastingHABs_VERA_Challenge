@@ -37,7 +37,9 @@ def normalize_and_format(data: pd.DataFrame):
 
 
 def create_sequences(data, seq_length):
-    """Convert the time series data into sequences"""
+    """Convert the time series data into sequences, 
+    x is a sequence of data from i to the sequence length, 
+    while y is just the observation at the i + sequence length"""
     X = []
     y = []
     for i in range(len(data) - seq_length):
@@ -133,6 +135,7 @@ print("Predicted chlorophyll-a value for tomorrow:", y_pred_inverse[-1])
 # save y_test and y_hat
 np.savetxt("./predicted.txt", y_pred_inverse)
 np.savetxt("./actual.txt", y_test_inverse)
+np.savetxt("./xtrain.txt", scaler.inverse_transform(X_test.reshape(-1,1)))
 
 # rmse
 print("Model RMSE: ", np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
