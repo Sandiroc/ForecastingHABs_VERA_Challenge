@@ -48,12 +48,12 @@ def create_sequences(data, seq_length):
     return np.array(X), np.array(y)
 
 
-def define_model(seq_length):
+def define_model(seq_length, forecast_dur):
     """Define architecture with lstm layers"""
     model = Sequential()
     model.add(LSTM(50, return_sequences=True, input_shape=(seq_length, 1)))
     model.add(LSTM(50, return_sequences=False))
-    model.add(Dense(1))
+    model.add(Dense(forecast_dur))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
