@@ -104,7 +104,7 @@ data = get_data(reservoir="fcre")
 data, scaler = normalize_and_format(data)
 
 # Choose sequence length
-sequence_length = 7
+sequence_length = 35
 
 # Create sequences
 X, y = create_sequences(data['Chla_ugl_mean'], sequence_length)
@@ -119,7 +119,7 @@ X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # define and train
-model = define_model(sequence_length)
+model = define_model(sequence_length, forecast_dur=35)
 model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
 
 # Make predictions
@@ -130,7 +130,7 @@ y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
 y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
 
 # Print the predicted chlorophyll-a value for tomorrow
-print("Predicted chlorophyll-a value for tomorrow:", y_pred_inverse[-1])
+print("Predicted chlorophyll-a value for 35 days into the future:", y_pred_inverse[-1])
 
 # save y_test and y_hat
 np.savetxt("./predicted.txt", y_pred_inverse)
