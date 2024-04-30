@@ -203,4 +203,4 @@ df["variable"] = ["Bloom_binary_mean"]
 df["prediction"] = [y_pred_prob]
 
 
-df.to_csv("./raw_data/forecast.csv" + start_date + ".csv", index=False)
+df.to_csv("./raw_data/forecast_" + start_date.strftime('%Y-%m-%d') + ".csv", index=False)
