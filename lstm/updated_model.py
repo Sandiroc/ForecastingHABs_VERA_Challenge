@@ -190,17 +190,22 @@ dates = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(35
 
 #row_list = ["project_id", "model_id", "datetime", "reference_datetime", "duration", "site_id", "family", "parameter", "variable", "prediction"]
 df = pd.DataFrame(columns=["project_id", "model_id", "datetime", "reference_datetime", "duration", "site_id", "depth_m", "family", "parameter", "variable", "prediction"], size=(35, 11))
-df["project_id"] = ["vera4cast"]
-df["model_id"] = ["protist"]
-df["datetime"] = [dates]
-df["reference_datetime"] = [date.today()]
-df["duration"] = ["P1D"]
-df["duration"] = ["fcre"]
-df["depth_m"] = ["1.6"]
-df["family"] = ["bernoulli"]
-df["parameter"] = ["prob"]
-df["variable"] = ["Bloom_binary_mean"]
-df["prediction"] = [y_pred_prob]
 
+# Assign values to each column row by row
+for date in dates:
+    df = df.append({
+        "project_id": "vera4cast",
+        "model_id": "protist",
+        "datetime": date,
+        "reference_datetime": date.today(),
+        "duration": "P1D",
+        "site_id": "fcre",
+        "depth_m": "1.6",
+        "family": "bernoulli",
+        "parameter": "prob",
+        "variable": "Bloom_binary_mean",
+        "prediction": y_pred_prob[index]
+    }, ignore_index=True)
 
+# Write to a csv file
 df.to_csv("./raw_data/forecast_" + start_date.strftime('%Y-%m-%d') + ".csv", index=False)
