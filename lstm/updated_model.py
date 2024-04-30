@@ -6,6 +6,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import format_data
+import csv
+from datetime import datetime, timedelta, date
+
 
 def get_data(reservoir: str):
     """Get formatted data created by format_data script, indicate which reservoir"""
@@ -122,24 +125,45 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 2))
 model = define_model(sequence_length, forecast_dur=35)
 model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
 
+#Creating a list to store all the predictions
+all_predictions = []
+
+#Running the model 100 times for uncertainty purposes
+for i in range(100):
+    # Make predictions
+    y_pred = model.predict(X_test)
+    # Inverse transform the predictions
+    y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
+    all_predictions.append(y_pred_inverse[-1])
+
+# Convert the list to a numpy array for easier manipulation
+all_predictions = np.array(all_predictions)
+
+# Calculating the percentage of predicted values over 20
+count = len([i for i in all_predictions if i >= 20])
+uncertainty = (count / len(all_predictions)) * 100
+
+
 # Make predictions
 y_pred = model.predict(X_test)
 
-# Inverse transform the predictions
-y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
 y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
 
 # Print the predicted chlorophyll-a value for tomorrow
 print("Predicted chlorophyll-a value for 35 days into the future:", y_pred_inverse[-1])
 
+# Converting the y_pred_inverse into probability using bernoulis distribution
+y_pred_prob = 1/(1+np.exp(-y_pred_inverse))
+
 # save y_test and y_hat
 np.savetxt("./predicted.txt", y_pred_inverse)
+np.savetxt("./probabilities.txt", y_pred_prob)
 np.savetxt("./actual.txt", y_test_inverse)
 np.savetxt("./xtrain.txt", scaler.inverse_transform(X_test.reshape(-1,1)))
 
 # rmse
 print("Model RMSE: ", np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
-
+print("Uncertainty: ", uncertainty)
 # plot
 plt.figure(figsize=(10, 6))
 plt.plot(y_test_inverse, label='Actual')
@@ -160,3 +184,23 @@ plt.xlabel('Noise Level')
 plt.ylabel('RMSE')
 plt.title("RMSE vs. Noise Level")
 plt.savefig("./plots/rmse.png")
+
+start_date = datetime.now().date()  # Start from today
+dates = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(35)]
+
+#row_list = ["project_id", "model_id", "datetime", "reference_datetime", "duration", "site_id", "family", "parameter", "variable", "prediction"]
+df = pd.DataFrame(columns=["project_id", "model_id", "datetime", "reference_datetime", "duration", "site_id", "depth_m", "family", "parameter", "variable", "prediction"], size=(35, 11))
+df["project_id"] = ["vera4cast"]
+df["model_id"] = ["protist"]
+df["datetime"] = [dates]
+df["reference_datetime"] = [date.today()]
+df["duration"] = ["P1D"]
+df["duration"] = ["fcre"]
+df["depth_m"] = ["1.6"]
+df["family"] = ["bernoulli"]
+df["parameter"] = ["prob"]
+df["variable"] = ["Bloom_binary_mean"]
+df["prediction"] = [y_pred_prob]
+
+
+df.to_csv("./raw_data/forecast.csv" + start_date + ".csv", index=False)
