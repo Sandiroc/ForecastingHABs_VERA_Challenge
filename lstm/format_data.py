@@ -70,9 +70,15 @@ def format(model_type, reservoir):
     fcre_chla_data.reset_index(inplace=True, drop=True)
     
     # send to CSVs
-    algal_data.to_csv(path_or_buf="./data/formatted_" + datestring + ".csv", index=False)
-    bvre_chla_data.to_csv(path_or_buf="./data/bvre_data" + datestring + ".csv", index=False)
-    fcre_chla_data.to_csv(path_or_buf="./data/fcre_data" + datestring + ".csv", index=False)
+    if (model_type == "null"):
+        algal_data.to_csv(path_or_buf="./data/null_formatted_" + datestring + ".csv", index=False)
+        bvre_chla_data.to_csv(path_or_buf="./data/null_bvre_data" + datestring + ".csv", index=False)
+        fcre_chla_data.to_csv(path_or_buf="./data/null_fcre_data" + datestring + ".csv", index=False)
+    
+    elif (model_type == "temp_date"):
+        algal_data.to_csv(path_or_buf="./data/full_formatted_" + datestring + ".csv", index=False)
+        bvre_chla_data.to_csv(path_or_buf="./data/full_bvre_data" + datestring + ".csv", index=False)
+        fcre_chla_data.to_csv(path_or_buf="./data/full_fcre_data" + datestring + ".csv", index=False)
 
     # remove previous data
     try:
