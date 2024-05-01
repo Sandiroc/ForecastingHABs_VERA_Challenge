@@ -11,12 +11,9 @@ def get_data(reservoir: str):
     """Get formatted data created by format_data script, indicate which reservoir"""
     
     # get data based on which reservoir is being analyzed
-    if (reservoir=='fcre'):
+    if (reservoir=='fcre' or reservoir=="bvre"):
         data = format_data.format("null", reservoir)
     
-    elif (reservoir=="bvre"):
-        data = format_data.format("null", reservoir)
-
     else:
         raise Exception("Invalid reservoir input!")
     
@@ -48,7 +45,7 @@ def create_sequences(data, seq_length):
     return np.array(X), np.array(y)
 
 
-def define_model(seq_length, forecast_dur):
+def define_model(seq_length):
     """Define architecture with lstm layers"""
     model = Sequential()
     model.add(LSTM(50, return_sequences=True, input_shape=(seq_length, 1)))
@@ -119,7 +116,7 @@ X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # define and train
-model = define_model(sequence_length, forecast_dur=1)
+model = define_model(sequence_length)
 model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
 
 # Make predictions
