@@ -53,7 +53,7 @@ def define_model(seq_length, forecast_dur):
     model = Sequential()
     model.add(LSTM(50, return_sequences=True, input_shape=(seq_length, 1)))
     model.add(LSTM(50, return_sequences=False))
-    model.add(Dense(forecast_dur))
+    model.add(Dense(1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
@@ -119,7 +119,7 @@ X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # define and train
-model = define_model(sequence_length, forecast_dur=35)
+model = define_model(sequence_length, forecast_dur=1)
 model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
 
 # Make predictions
