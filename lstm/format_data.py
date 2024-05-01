@@ -14,6 +14,7 @@ def format(model_type, reservoir):
     # get the data
     read_data.read()
     
+    
     # get date
     date = datetime.now()
     datestring = date.strftime("%Y-%m-%d")
