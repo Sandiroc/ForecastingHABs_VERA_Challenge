@@ -26,7 +26,6 @@ def normalize_and_format(data: pd.DataFrame):
     # sort to handle out of place dates
     data['datetime'] = pd.to_datetime(data['datetime'])
     data.sort_values('datetime', inplace=True)
-    print(data.head())
 
     # min-max normalize observations
     scaler_chla = MinMaxScaler()
@@ -47,6 +46,7 @@ def create_sequences(data, seq_length):
         label = data[i + seq_length, 0]  # assuming Chla is the first column after sequencing
         X.append(seq)
         y.append(label)
+    
     return np.array(X), np.array(y)
 
 
@@ -115,6 +115,8 @@ X, y = create_sequences(data[['Chla_ugL_mean', 'Temp_C_mean']].values, sequence_
 train_size = int(len(X) * 0.7)
 X_train, X_test = X[:train_size], X[train_size:]
 y_train, y_test = y[:train_size], y[train_size:]
+
+
 
 # Reshape the input data for LSTM
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))

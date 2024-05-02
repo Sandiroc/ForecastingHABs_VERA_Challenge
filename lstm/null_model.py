@@ -17,7 +17,7 @@ def get_data(reservoir: str):
     else:
         raise Exception("Invalid reservoir input!")
     
-    return data
+    return data, reservoir
 
 
 def normalize_and_format(data: pd.DataFrame):
@@ -29,7 +29,7 @@ def normalize_and_format(data: pd.DataFrame):
 
     # min-max normalize observations
     scaler = MinMaxScaler()
-    data['Chla_ugl_mean'] = scaler.fit_transform(data['Chla_ugl_mean'].values.reshape(-1,1))
+    data['Chla_ugL_mean'] = scaler.fit_transform(data['Chla_ugL_mean'].values.reshape(-1,1))
     return data, scaler
 
 
@@ -92,19 +92,70 @@ def noise_val(X_test, y_test, model: Sequential, noises=(0.01, 0.05, 0.1, 0.15, 
     return rmse, noises
 
 
+def epoch_eval(X_test, y_test, model: Sequential, epochs=range(5, 50, 5)):
+        
+    rmse = list()
+
+    # iterate over each noise
+    for i in range(len(epochs)):
+
+        # define and train
+        model = define_model(sequence_length)
+        model.fit(X_train, y_train, epochs=epochs[i], batch_size=8, verbose=1)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Inverse transform the predictions
+        y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
+        y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
+
+        # calculate rmse
+        rmse.append(np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
+
+    
+    return rmse, epochs
+
+def batch_eval(X_test, y_test, model: Sequential, batches=(2, 4, 8, 16, 32)):
+        
+    rmse = list()
+
+    # iterate over each noise
+    for i in range(len(batches)):
+
+        # define and train
+        model = define_model(sequence_length)
+        model.fit(X_train, y_train, epochs=30, batch_size=batches[i], verbose=1)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Inverse transform the predictions
+        y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
+        y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
+
+        # calculate rmse
+        rmse.append(np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
+
+    
+    return rmse, batches
+
+
+
+
 # ------------------------------------------------------------------------------------------------
 
 # get fcre data
-data = get_data(reservoir="fcre")
+data, reservoir = get_data(reservoir="fcre")
 
 # normalize chl-a observations
 data, scaler = normalize_and_format(data)
 
 # Choose sequence length
-sequence_length = 35
+sequence_length = 7
 
 # Create sequences
-X, y = create_sequences(data['Chla_ugl_mean'], sequence_length)
+X, y = create_sequences(data['Chla_ugL_mean'], sequence_length)
 
 # Split the data into training and testing sets
 train_size = int(len(X) * 0.7)
@@ -117,7 +168,7 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # define and train
 model = define_model(sequence_length)
-model.fit(X_train, y_train, epochs=15, batch_size=8, verbose=1)
+model.fit(X_train, y_train, epochs=30, batch_size=16, verbose=1)
 
 # Make predictions
 y_pred = model.predict(X_test)
@@ -143,10 +194,11 @@ plt.plot(y_test_inverse, label='Actual')
 plt.plot(y_pred_inverse, label='Predicted')
 plt.xlabel('Time')
 plt.ylabel('Mean Chlorophyll-a content (ug/L)')
-plt.title('Actual vs Predicted Chlorophyll-a Values')
+plt.title('Actual vs Predicted Chlorophyll-a Values at ' + reservoir)
 plt.legend()
-plt.savefig("./plots/preds.png")
+plt.savefig("./plots/null_preds_" + reservoir + ".png")
 
+"""
 # test noise
 noise_rmse, noises = noise_val(X_test, y_test, model)
 
@@ -156,4 +208,29 @@ plt.plot(noises, noise_rmse)
 plt.xlabel('Noise Level')
 plt.ylabel('RMSE')
 plt.title("RMSE vs. Noise Level")
-plt.savefig("./plots/rmse.png")
+plt.savefig("./plots/null_noise.png") """
+
+"""
+# test epochs
+epoch_rmse, epochs = epoch_eval(X_test, y_test, model)
+
+# plot epochs
+plt.figure(figsize=(10,6))
+plt.plot(epochs, epoch_rmse)
+plt.xlabel('Epoch')
+plt.ylabel('RMSE')
+plt.title("RMSE vs. Epochs")
+plt.savefig("./plots/null_epochs.png") """
+
+"""
+# test batch size
+batch_rmse, batches = batch_eval(X_test, y_test, model)
+
+# plot epochs
+plt.figure(figsize=(10,6))
+plt.plot(batches, batch_rmse)
+plt.xlabel('Batches')
+plt.ylabel('RMSE')
+plt.title("RMSE vs. Batches")
+plt.savefig("./plots/null_batches.png") """
+
