@@ -1,4 +1,4 @@
-project_id,site_id,datetime,duration,depth_m,Chla_ugl_mean
+project_id,site_id,datetime,duration,depth_m,Chla_ugL_mean
 vera4cast,bvre,2020-06-25 00:00:00.000000Z,P1D,1.5,4.193103448275863
 vera4cast,bvre,2020-06-26 00:00:00.000000Z,P1D,1.5,4.619513888888889
 vera4cast,bvre,2020-06-27 00:00:00.000000Z,P1D,1.5,3.410833333333333

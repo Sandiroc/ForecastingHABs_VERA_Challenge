@@ -1,4 +1,4 @@
-project_id,site_id,datetime,duration,depth_m,Chla_ugl_mean
+project_id,site_id,datetime,duration,depth_m,Chla_ugL_mean
 vera4cast,fcre,2018-08-06 00:00:00.000000Z,P1D,1.6,3.720882352941176
 vera4cast,fcre,2018-08-07 00:00:00.000000Z,P1D,1.6,4.012569444444445
 vera4cast,fcre,2018-08-08 00:00:00.000000Z,P1D,1.6,6.267430555555555

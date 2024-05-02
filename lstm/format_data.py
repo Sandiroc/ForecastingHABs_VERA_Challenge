@@ -14,7 +14,7 @@ def format(model_type, reservoir):
     # get the data
     read_data.read()
     
-    
+
     # get date
     date = datetime.now()
     datestring = date.strftime("%Y-%m-%d")
@@ -29,10 +29,10 @@ def format(model_type, reservoir):
 
         # get only chloropyhll-a
         algal_data = algal_data[algal_data['variable'] == "Chla_ugL_mean"]
-        algal_data.rename(columns={"observation" : "Chla_ugl_mean"}, inplace=True)
+        algal_data.rename(columns={"observation" : "Chla_ugL_mean"}, inplace=True)
         algal_data.drop(columns=["variable"], inplace=True)
 
-    elif (model_type == "temp_date"):
+    else:
         # drop empty observations
         algal_data.dropna(subset=['observation'], inplace = True)
         # remove extraneous temp values
@@ -57,14 +57,23 @@ def format(model_type, reservoir):
     # algal_data["datetime"] = algal_data["datetime"].str[5:10]
 
     # get index for split between fcre and bvre
-    for ind, value in enumerate(algal_data['site_id']):
-        if value =='bvre' and algal_data['site_id'].iloc[ind - 1] == 'fcre':
-            split_index = ind
-            break
+    if model_type == "temp_date":
+        for ind, value in enumerate(algal_data['site_id']):
+            if value =='fcre' and algal_data['site_id'].iloc[ind - 1] == 'bvre':
+                split_index = ind
+                break
 
-    # split into different datasets
-    bvre_chla_data = algal_data[split_index:]
-    fcre_chla_data = algal_data[:split_index]
+        fcre_chla_data = algal_data[split_index:]
+        bvre_chla_data = algal_data[:split_index]
+
+    elif model_type == "null":
+        for ind, value in enumerate(algal_data['site_id']):
+            if value =='bvre' and algal_data['site_id'].iloc[ind - 1] == 'fcre':
+                split_index = ind
+                break
+
+        bvre_chla_data = algal_data[split_index:]
+        fcre_chla_data = algal_data[:split_index]
 
     # reindex dataframes
     bvre_chla_data.reset_index(inplace=True, drop=True)
