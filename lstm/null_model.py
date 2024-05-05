@@ -176,8 +176,8 @@ data, reservoir = get_data(reservoir="fcre")
 data, scaler = normalize_and_format(data)
 
 # Choose sequence length
-sequence_length = 10
-
+# look 8 days back, forecast 7 days into the future
+sequence_length = 8
 forecast_horizon = 7
 
 # Create sequences
