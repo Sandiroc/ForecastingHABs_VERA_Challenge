@@ -33,24 +33,24 @@ def normalize_and_format(data: pd.DataFrame):
     return data, scaler
 
 
-def create_sequences(data, seq_length):
+def create_sequences(data, seq_length, forecast_horizon):
     """Convert the time series data into sequences, 
     x is a sequence of data from i to the sequence length, 
     while y is just the observation at the i + sequence length"""
     X = []
     y = []
-    for i in range(len(data) - seq_length):
+    for i in range(len(data) - seq_length - forecast_horizon + 1):
         X.append(data[i:(i + seq_length)])
-        y.append(data[i + seq_length])
+        y.append(data[(i + seq_length):(i + seq_length + forecast_horizon)])
     return np.array(X), np.array(y)
 
 
-def define_model(seq_length):
+def define_model(seq_length, forecast_horizon):
     """Define architecture with lstm layers"""
     model = Sequential()
     model.add(LSTM(50, return_sequences=True, input_shape=(seq_length, 1)))
     model.add(LSTM(50, return_sequences=False))
-    model.add(Dense(1))
+    model.add(Dense(forecast_horizon))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
@@ -178,8 +178,10 @@ data, scaler = normalize_and_format(data)
 # Choose sequence length
 sequence_length = 10
 
+forecast_horizon = 7
+
 # Create sequences
-X, y = create_sequences(data['Chla_ugL_mean'], sequence_length)
+X, y = create_sequences(data['Chla_ugL_mean'], sequence_length, forecast_horizon)
 
 # Split the data into training and testing sets
 
@@ -192,18 +194,18 @@ X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # define and train
-model = define_model(sequence_length)
+model = define_model(sequence_length, forecast_horizon)
 model.fit(X_train, y_train, epochs=30, batch_size=16, verbose=1)
 
 # Make predictions
 y_pred = model.predict(X_test)
 
 # Inverse transform the predictions
-y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
-y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
+y_pred_inverse = scaler.inverse_transform(y_pred)
+y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,forecast_horizon))
 
 # Print the predicted chlorophyll-a value for tomorrow
-print("Predicted chlorophyll-a value for 35 days into the future:", y_pred_inverse[-1])
+print("Predicted chlorophyll-a value for " + str(forecast_horizon) + " days into the future:", y_pred_inverse[-1])
 
 # save y_test and y_hat
 np.savetxt("./predicted.txt", y_pred_inverse)
