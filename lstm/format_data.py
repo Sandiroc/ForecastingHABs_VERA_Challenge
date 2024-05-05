@@ -98,9 +98,12 @@ def format(model_type, reservoir):
         root = "./data/"
         rm_string = yesterday.strftime("%Y-%m-%d")
         
-        os.remove(root + "bvre_data_" + rm_string + ".csv")
-        os.remove(root + "fcre_data_" + rm_string + ".csv")
-        os.remove(root + "formatted_" + rm_string + ".csv")
+        os.remove(root + "null_bvre_data_" + rm_string + ".csv")
+        os.remove(root + "null_fcre_data_" + rm_string + ".csv")
+        os.remove(root + "null_formatted_" + rm_string + ".csv")
+        os.remove(root + "full_bvre_data_" + rm_string + ".csv")
+        os.remove(root + "full_fcre_data_" + rm_string + ".csv")
+        os.remove(root + "full_formatted_" + rm_string + ".csv")
 
     except:
         print("Previous data not initialized")

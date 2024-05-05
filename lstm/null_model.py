@@ -141,6 +141,30 @@ def batch_eval(X_test, y_test, model: Sequential, batches=(2, 4, 8, 16, 32)):
     return rmse, batches
 
 
+def seq_eval(X_test, y_test, model: Sequential, sequences=range(1,101)):
+        
+    rmse = list()
+
+    # iterate over each noise
+    for i in range(len(sequences)):
+
+        # define and train
+        model = define_model(sequences[i])
+        model.fit(X_train, y_train, epochs=30, batch_size=16, verbose=1)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Inverse transform the predictions
+        y_pred_inverse = scaler.inverse_transform(y_pred.reshape(-1,1))
+        y_test_inverse = scaler.inverse_transform(y_test.reshape(-1,1))
+
+        # calculate rmse
+        rmse.append(np.sqrt(mean_squared_error(y_test_inverse, y_pred_inverse)))
+
+    
+    return rmse, sequences
+
 
 
 # ------------------------------------------------------------------------------------------------
@@ -152,12 +176,13 @@ data, reservoir = get_data(reservoir="fcre")
 data, scaler = normalize_and_format(data)
 
 # Choose sequence length
-sequence_length = 7
+sequence_length = 10
 
 # Create sequences
 X, y = create_sequences(data['Chla_ugL_mean'], sequence_length)
 
 # Split the data into training and testing sets
+
 train_size = int(len(X) * 0.7)
 X_train, X_test = X[:train_size], X[train_size:]
 y_train, y_test = y[:train_size], y[train_size:]
@@ -226,7 +251,7 @@ plt.savefig("./plots/null_epochs.png") """
 # test batch size
 batch_rmse, batches = batch_eval(X_test, y_test, model)
 
-# plot epochs
+# plot batches
 plt.figure(figsize=(10,6))
 plt.plot(batches, batch_rmse)
 plt.xlabel('Batches')
@@ -234,3 +259,15 @@ plt.ylabel('RMSE')
 plt.title("RMSE vs. Batches")
 plt.savefig("./plots/null_batches.png") """
 
+"""
+# test sequences
+batch_rmse, sequences = seq_eval(X_test, y_test, model)
+
+# plot sequences
+plt.figure(figsize=(10,6))
+plt.plot(sequences, batch_rmse)
+plt.xlabel('Sequences')
+plt.ylabel('RMSE')
+plt.title("RMSE vs. Number of Sequences")
+plt.savefig("./plots/null_sequences.png")
+"""
