@@ -89,7 +89,7 @@ def generate_csv(reservoir: str, forecast_len):
             os.remove(file_path)
 
     # send to csv
-    pd.DataFrame(submission).to_csv("./submissions/vera_submission_" + datetime.today().strftime("%Y-%m-%d") + ".csv")
+    pd.DataFrame(submission).to_csv("./submissions/vera_submission_" + reservoir + "_" + datetime.today().strftime("%Y-%m-%d") + ".csv")
 
 
 

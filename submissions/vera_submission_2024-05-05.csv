@@ -1,8 +1,0 @@
-,model_id,datetime,reference_datetime,site_id,variable,family,parameter,prediction,depth_m,project_id,duration
-0,protist,2024-05-06,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
-1,protist,2024-05-07,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
-2,protist,2024-05-08,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
-3,protist,2024-05-09,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
-4,protist,2024-05-10,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
-5,protist,2024-05-11,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
-6,protist,2024-05-12,2024-05-05,fcre,Bloom_binary_mean,bernoulli,prob,0.0,1.6,vera4cast,P1D
