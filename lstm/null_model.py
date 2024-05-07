@@ -296,4 +296,4 @@ def forecast(reservoir: str, forecast_horizon):
 
 
 if __name__ == "__main__":
-    forecast("fcre")
+    forecast("fcre", 1)
