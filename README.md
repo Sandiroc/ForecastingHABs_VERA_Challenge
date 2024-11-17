@@ -5,6 +5,8 @@ LSTM architecture in Keras to forecast harmful algal blooms at the Falling Creek
 
 Sample forecast using simple linear regression: https://github.com/OlssonF/vera4cast-example/tree/main
 
+Vera Competition: https://www.ltreb-reservoirs.org/vera4cast/performance.html
+
 ## Necessary packages
 To install all the packages used in this repository, run:
 
