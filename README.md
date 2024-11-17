@@ -1,4 +1,4 @@
-Forecasting Harmful Algal Blooms
+##Forecasting Harmful Algal Blooms
 Sandilya Bhamidipati, Emaan Rahman, Dylan Nguyen
 
 LSTM architecture in Keras to forecast harmful algal blooms at the Falling Creek Reservoir & Beaverdam Reservoir using the VERA competition repository of data.
